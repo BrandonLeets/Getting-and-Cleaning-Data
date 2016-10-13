@@ -49,6 +49,7 @@ dfGDP <- dfGDP[, list("X","X.1","X.3","X.4")]
 setnames(dfGDP, c("X","X.1","X.3","X.4"), c("CountryCode", "rankingGDP", "Long.Name", "gdp"))
 gdp <- as.numeric(gsub(",","",dfGDP$gdp))
 mean(gdp, na.rm = TRUE)
+```
 
 ##Question 3
 ------------
