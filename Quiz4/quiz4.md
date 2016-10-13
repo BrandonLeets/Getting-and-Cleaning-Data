@@ -49,3 +49,12 @@ dfGDP <- dfGDP[, list("X","X.1","X.3","X.4")]
 setnames(dfGDP, c("X","X.1","X.3","X.4"), c("CountryCode", "rankingGDP", "Long.Name", "gdp"))
 gdp <- as.numeric(gsub(",","",dfGDP$gdp))
 mean(gdp, na.rm = TRUE)
+
+##Question 3
+------------
+In the data set from Question 2 what is the regular expression that would allow you to count the number of countries whosae name begin with "United"? Assume that the variable with the country names in it is named countryNames. How many countries begin with United?
+
+```{r}
+united <- grepl("^United", dtGDP$Long.Name)
+summary(united)
+```
