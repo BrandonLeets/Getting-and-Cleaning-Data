@@ -52,7 +52,8 @@ mean(gdp, na.rm = TRUE)
 
 ##Question 3
 ------------
-In the data set from Question 2 what is the regular expression that would allow you to count the number of countries whosae name begin with "United"? Assume that the variable with the country names in it is named countryNames. How many countries begin with United?
+In the data set from Question 2 what is the regular expression that would allow you to count the number of countries whosae name begin with "United"?
+Assume that the variable with the country names in it is named countryNames. How many countries begin with United?
 
 ```{r}
 united <- grepl("^United", dtGDP$Long.Name)
@@ -90,7 +91,8 @@ dt[isFiscalOver & isJune, Special.Notes]
 ```
 ##Question 5
 ------------
-You can use the quantmod (http://www.quantmod.com/) package to get historical stock prices for publicly traded companies on the NASDAQ and NYSE. Use the following code to download data on Amazon's stock price and get the times the data was sampled.
+You can use the quantmod (http://www.quantmod.com/) package to get historical stock prices for publicly traded companies on the NASDAQ and NYSE. 
+Use the following code to download data on Amazon's stock price and get the times the data was sampled.
 
 ```{r}
 library(quantmod)
