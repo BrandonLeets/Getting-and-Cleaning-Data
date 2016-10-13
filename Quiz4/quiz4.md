@@ -28,3 +28,24 @@ varNames <- names(dt)
 varNamesSplit <- strsplit(varNames, "wgtp")
 varNamesSplit[[123]]
 ```
+
+##Question 2
+------------
+Load the Gross Domestic Product data ffor the 190 ranked countries in this data set:
+
+https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FGDP.csv 
+
+Remove the commas from the GDP numbers in millions of dolloars and average them. What is the average?
+
+Original data source: http://data.worldbank.org/data-catalog/GDP-ranking-table
+
+```{r}
+url <- "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FGDP.csv "
+path <- file.path(getwd(), "GDP.csv")
+download.file(url, path)
+dfGDP <- data.table(read.csv(path. skip = 4, nrows = 125, stringsAsFactors = False))
+dfGDP <- dfGDP[X != ""]
+dfGDP <- dfGDP[, list("X","X.1","X.3","X.4")]
+setnames(dfGDP, c("X","X.1","X.3","X.4"), c("CountryCode", "rankingGDP", "Long.Name", "gdp"))
+gdp <- as.numeric(gsub(",","",dfGDP$gdp))
+mean(gdp, na.rm = TRUE)
