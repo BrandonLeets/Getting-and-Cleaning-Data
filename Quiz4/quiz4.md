@@ -58,3 +58,33 @@ In the data set from Question 2 what is the regular expression that would allow 
 united <- grepl("^United", dtGDP$Long.Name)
 summary(united)
 ```
+
+##Question 4
+------------
+Load the Gross Domestic Product data ffor the 190 ranked countries in this data set:
+
+https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FGDP.csv 
+
+Load the educational data from this data set:
+
+https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FEDSTATS_Country.csv 
+
+Match the data based on the country shortcode. Of the countries for which the end of the fiscal year is available. how many end in June?
+
+Original data source:
+http://data.worldbank.org/data-catalog/GDP-ranking-table 
+http://data.worldbank.org/data-catalog/ed-stats
+
+Wealready have the first data set from question 2 so there is no reason to reload it
+
+```{r}
+url <- "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FEDSTATS_Country.csv"
+path <- file.path(getwd(), "EDU.csv")
+download.file(url, path)
+dtEDU <- data.table(read.csv(path))
+dt <- merge(dfGDP, dtEDU, all = TRUE, by = c("CountryCode"))
+isFiscalOver <- grepl("fiscal year end", tolower(dt$Special.Notes))
+isJune <- grepl("june", tolower(dt$Special.Notes))
+table(isFiscalOver, isJune)
+dt[isFiscalOver & isJune, Special.Notes]
+```
