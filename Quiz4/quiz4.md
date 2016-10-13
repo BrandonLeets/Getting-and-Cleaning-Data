@@ -75,7 +75,7 @@ Original data source:
 http://data.worldbank.org/data-catalog/GDP-ranking-table 
 http://data.worldbank.org/data-catalog/ed-stats
 
-Wealready have the first data set from question 2 so there is no reason to reload it
+We already have the first data set from question 2 so there is no reason to reload it
 
 ```{r}
 url <- "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FEDSTATS_Country.csv"
@@ -87,4 +87,21 @@ isFiscalOver <- grepl("fiscal year end", tolower(dt$Special.Notes))
 isJune <- grepl("june", tolower(dt$Special.Notes))
 table(isFiscalOver, isJune)
 dt[isFiscalOver & isJune, Special.Notes]
+```
+##Question 5
+------------
+You can use the quantmod (http://www.quantmod.com/) package to get historical stock prices for publicly traded companies on the NASDAQ and NYSE. Use the following code to download data on Amazon's stock price and get the times the data was sampled.
+
+```{r}
+library(quantmod)
+amzn = getSymbols("AMZN", auto.assign = FALSE)
+sampleTimes = index(amzn)
+```
+
+How many valueswere collected in 2012? How many values were collected on Mondays in 2012?
+
+```{r}
+amzn = getSymbols("AMZN", auto.assign = FALSE)
+sampleTimes = index(amzn)
+addmargins(table(year(sampleTimes), weekdays(sampleTimes)))
 ```
