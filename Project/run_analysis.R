@@ -13,4 +13,10 @@ run_analysis <- function(){
   #Read in files
   dtsubtrain <- fread(file.path(pathIn, "train","subject_train.txt"))
   dtsubtest <- fread(file.path(pathIn, "test","subject_test.txt"))
+  fileToMakeTable <- function(path){
+    df <- read.table(path)
+    dt <- data.table(df)
+  }
+  dttrain <- fileToMakeTable(file.path(pathIn, "train", "X_train.txt"))
+  dttest <- fileToMakeTable(file.path(pathIn, "test", "X_test.txt")) 
 }
