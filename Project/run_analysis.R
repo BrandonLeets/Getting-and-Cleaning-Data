@@ -10,4 +10,7 @@ run_analysis <- function(){
   unzip(file.path(path, fileName))
   pathIn <- file.path(path, "UCI HAR Dataset")
   list.files(pathIn, recursive = TRUE)
+  #Read in files
+  dtsubtrain <- fread(file.path(pathIn, "train","subject_train.txt"))
+  dtsubtest <- fread(file.path(pathIn, "test","subject_test.txt"))
 }
