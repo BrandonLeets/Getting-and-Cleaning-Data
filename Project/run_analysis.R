@@ -40,4 +40,8 @@ run_analysis <- function(){
   head(dtfeat)
   select <- c(key(dt), dtfeat$featureCode)
   dt <- dt[,select, with=FALSE]
+  #use descriptive activity names
+  dtActnames <- fread(file.path(pathIn, "activity_labels.txt"))
+  setnames(dtActnames, names(dtActnames), c("activityNumber", "activityName"))
+  
 }
