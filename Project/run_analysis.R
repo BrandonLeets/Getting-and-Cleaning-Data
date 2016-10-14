@@ -32,4 +32,12 @@ run_analysis <- function(){
   dt <- cbind(dtsub, dt)
   #set the key
   setkey(dt, subject, activityNumber)
+  #extract the mean and stdev
+  dtfeat <- fread(file.path(pathIn, "features.txt"))
+  setnames(dtfeat, names(dtfeat), c("featureNumber", "featureName"))
+  dtfeat <- dtfeat[grepl("mean\\(\\)|std\\(\\)", featureName)]
+  dtfeat$featureCode <- dtfeat[,paste0("V", featureNumber)]
+  head(dtfeat)
+  select <- c(key(dt), dtfeat$featureCode)
+  dt <- dt[,select, with=FALSE]
 }
