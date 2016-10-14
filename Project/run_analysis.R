@@ -21,10 +21,15 @@ run_analysis <- function(){
   }
   dttrain <- fileToMakeTable(file.path(pathIn, "train", "X_train.txt"))
   dttest <- fileToMakeTable(file.path(pathIn, "test", "X_test.txt")) 
-  
- dtsub <- rbind(dtsubtrain, dtsubtest)
- setnames(dtsub, "V1", "subject")
- dtact <- rbind(dtacttrain, dtacttest)
- setnames(dtact, "V1", "activityNumber")
- dt <- rbind(dttrain, dttest)
+  #begin merging the datasets
+  dtsub <- rbind(dtsubtrain, dtsubtest)
+  setnames(dtsub, "V1", "subject")
+  dtact <- rbind(dtacttrain, dtacttest)
+  setnames(dtact, "V1", "activityNumber")
+  dt <- rbind(dttrain, dttest)
+  #merge the columns
+  dtsub <- cbind(dtsub, dtact)
+  dt <- cbind(dtsub, dt)
+  #set the key
+  setkey(dt, subject, activityNumber)
 }
