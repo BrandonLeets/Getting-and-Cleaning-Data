@@ -109,6 +109,36 @@ setkey(dt, subject, activityNumber)
 ```
 
 ##Extract only the mean and standard deviation
-______________________________________________
+----------------------------------------------
+Read in the 'feature.txt' to tell us what variables in 'dt' are measurements for the mean and standard deviation
+
+```{r}
+dtfeat <- fread(file.path(pathIn, "features.txt"))
+setnames(dtfeat, names(dtfeat), c("featureNum", "featureName"))
+```
+
+Subset only the mean and standard deviation
+
+```{r}
+dtfeat <- dtfeat[grepl("mean\\(\\)|std\\(\\)", featureName)]
+```
+
+Convert the column numbers to names from the 'feature.txt'
+
+```{r}
+dtfeat$featureCode <- dtfeat[,paste0("V", featureNum)]
+head(dtfeat)
+dtFeat$featureCode
+```
+
+Subset using the variables names
+
+```{r}
+select <- c(key(dt), dtfeat$featureCode)
+dt <- dt[,select, with=FALSE]
+```
+
+##Using descriptive activity names
+----------------------------------
 
 
