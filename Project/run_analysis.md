@@ -109,6 +109,6 @@ setkey(dt, subject, activityNumber)
 ```
 
 ##Extract only the mean and standard deviation
-----------------------------------------------
+______________________________________________
 
 
