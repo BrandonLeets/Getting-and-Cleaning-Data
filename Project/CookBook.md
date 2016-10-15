@@ -184,6 +184,7 @@ featDomain featAcceleration featInstrument featJerk featMagnitude featVariable f
 64:        Feq             Body  Accelerometer     Jerk            NA        STDEV        Z 180
 65:        Feq             Body  Accelerometer     Jerk     Magnitude         Mean       NA 180
 66:        Feq             Body  Accelerometer     Jerk     Magnitude        STDEV       NA 180
+```
 
 Save to file with write.table()
 -------------------------------
