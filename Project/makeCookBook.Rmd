@@ -18,4 +18,39 @@ featAxis		| Feature: 3-axial signals in the X, Y and Z directions
 featCount		| Feature: Count of data points used to compute 'average'
 featAverage		| Feature: Average of each variable foe each activity and each subject
 
+Dataset structure
+-----------------
+```{r}
+str(dtTidy)
+```
 
+List the key vartiables in the data table
+-----------------------------------------
+```{r}
+key(dtTidy)
+```
+
+Show a few rows of the dataset
+------------------------------
+```{r}
+head(dtTidy)
+```
+
+Summary of variables
+--------------------
+```{r}
+summary(dtTidy)
+````
+
+List all possible combinations of features
+------------------------------------------
+```{r}
+dtTidy[,.N, by = c(names(dtTidy)[grep("^feat", names(dtTidy))])]
+```
+
+Save to file with write.table()
+-------------------------------
+```{r}
+pathSave <- file.path(path, "DatasetHumanActivityRecoginitionUsingSmartphones.txt")
+write.table(dtTidy, pathSave, quote = FALSE, sep"\t", row.names = FALSE)
+```
