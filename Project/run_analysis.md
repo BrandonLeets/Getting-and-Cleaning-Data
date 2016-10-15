@@ -141,4 +141,92 @@ dt <- dt[,select, with=FALSE]
 ##Using descriptive activity names
 ----------------------------------
 
+The 'activity_labels.txt' file will add descriptive activity names
 
+```{r}
+dtActnames <- fread(file.path(pathIn, "activity_labels.txt"))
+setnames(dtActnames, names(dtActnames), c("activityNumber", "activityName"))
+```
+
+##Label with the descriptive names
+----------------------------------
+
+Merge the activity labels with the data table
+
+```{r}
+dt <- merge(dt, dtActnames, by = "activityNumber", all.x = TRUE)
+```
+
+Add the 'activityName' as a key
+
+```{r}
+setkey(dt, subject, activityNumber, activityName)
+```
+
+We need to reshape the dataset using the melt function. This will changhe it from a short and wide dataset to a tall and skinny dataset
+
+```{r}
+dt <- data.table(melt(dt, key(dt), variable.name = "featureCode"))
+```
+
+The we can merge the activity names with the melted dataset
+
+```{r}
+dt <- merge(dt, dtfeat[,list(featureNum, featureCode, featureName)], by = "featureCode", all.x = TRUE)
+```
+
+We have to create a couple of variables for the 'activityName'  and 'featureName'
+
+```{r}
+dt$activity <- factor(dt$activityName)
+dt$feature <- factor(dt$featureName)
+```
+
+A helpful function for the next chunk of code with the grepthis function (helps save on typing)
+
+```{r}
+grepthis <- function(name){
+    grepl(name, dt$feature)
+}
+```
+
+Now we seperate the features from 'featureName'
+
+```{r}
+n <- 2
+y <- matrix(seq(1,n), nrow = n)
+x <- matrix(c(grepthis("^t"), grepthis("^f")), ncol = nrow(y))
+dt$featDomain <- factor( x %*% y, labels = c("Time", "Feq"))
+x <- matrix(c(grepthis("Acc"), grepthis("Gyro")), ncol = nrow(y))
+dt$featInstrument <- factor(x %*% y, labels = c("Accelerometer","Gyroscope"))
+x <- matrix(c(grepthis("BodyAcc"), grepthis("GravityAcc")), ncol = nrow(y))
+dt$featAcceleration <- factor(x %*% y, labels = c(NA, "Body", "Gravity"))
+x <- matrix(c(grepthis("mean()"), grepthis("std()")), ncol = nrow(y))
+dt$featVariable <- factor( x %*% y, labels = c("Mean","STDEV"))
+dt$featJerk <- factor(grepthis("Jerk"), labels = c(NA, "Jerk"))
+dt$featMagnitude <- factor(grepthis("Mag"), labels = c(NA, "Magnitude"))
+n <- 3
+y <- matrix(seq(1,n), nrow=n)
+x <- matrix(c(grepthis("-X"), grepthis("-Y"), grepthis("-Z")), ncol=nrow(y))
+dt$featAxis <- factor(x %*% y, labels = c(NA,"X","Y","Z"))
+```
+
+##Create a tidy dataset
+-----------------------
+
+Create a tidy dataset with the average of each variable for activity and subject
+
+```{r}
+setkey(dt, subject, activity, featDomain, featAcceleration, featInstrument, featJerk, featMagnitude, featVariable, featAxis)
+dtTidy <- dt[, list(count = .N, average = mean(value)), by = key(dt)]
+```
+
+##Write to a file
+-----------------
+
+Write the dataset to a file using the write.table function
+
+```{r}
+f <- file.path(path, "DatasetHumanActivityRecoginitionUsingSmartphones.txt")
+write.table(dtTidy, f, quote = FALSE, sep = "\t", row.names = FALSE)
+```
