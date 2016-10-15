@@ -70,7 +70,7 @@ run_analysis <- function(){
   y <- matrix(seq(1,n), nrow=n)
   x <- matrix(c(grepthis("-X"), grepthis("-Y"), grepthis("-Z")), ncol=nrow(y))
   dt$featAxis <- factor(x %*% y, labels = c(NA,"X","Y","Z"))
-  setkey(dt, subject, featDomain, featAcceleration, featInstrument, featJerk, featMagnitude, featVariable, featAxis)
+  setkey(dt, subject, activity, featDomain, featAcceleration, featInstrument, featJerk, featMagnitude, featVariable, featAxis)
   dtTidy <- dt[, list(count = .N, average = mean(value)), by = key(dt)]
   f <- file.path(path, "DatasetHumanActivityRecoginitionUsingSmartphones.txt")
   write.table(dtTidy, f, quote = FALSE, sep = "\t", row.names = FALSE)
