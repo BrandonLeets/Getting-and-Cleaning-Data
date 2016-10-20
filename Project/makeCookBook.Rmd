@@ -18,12 +18,6 @@ Dataset structure
 str(dtTidy)
 ```
 
-List the key vartiables in the data table
------------------------------------------
-```{r}
-key(dtTidy)
-```
-
 Show a few rows of the dataset
 ------------------------------
 ```{r}
