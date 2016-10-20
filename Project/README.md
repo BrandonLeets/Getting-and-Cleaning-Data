@@ -30,4 +30,4 @@ Good luck!
 3. Run the script
 
 ##Outputs
-Tidy dataset file 'tidyData.txt'
+Tidy dataset file 'tidyData.txt' Which is saved in the UCI HAR Dataset
