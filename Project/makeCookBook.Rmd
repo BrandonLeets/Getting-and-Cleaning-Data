@@ -15,18 +15,17 @@ The next 79 measurements of the mean and standard deviation of the differernt in
 Dataset structure
 -----------------
 ```{r}
-str(dtTidy)
+str(dt)
 ```
 
 Show a few rows of the dataset
 ------------------------------
 ```{r}
-head(dtTidy)
-tail(dtTidy)
+head(dt)
 ```
 
 Summary of variables
 --------------------
 ```{r}
-summary(dtTidy)
+summary(dt)
 ````
