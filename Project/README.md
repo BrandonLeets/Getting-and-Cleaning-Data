@@ -27,8 +27,7 @@ Good luck!
 
 ##To reproduce the project
 1. Open the 'run_analysis.R' in rstudio
-2. Change the Path to where the file is saved
 3. Run the script
 
 ##Outputs
-Tidy dataset file 'DatasetHumanActivityRecoginitionUsingSmartphones.txt'
+Tidy dataset file 'tidyData.txt'
