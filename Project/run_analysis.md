@@ -28,13 +28,7 @@ Good luck!
 Load these specific Libraries
 
 ```{r}
-library(data.table)
-library(knitr)
-```
-Set the path for downloading the files
-
-```{r}
-path <- getwd()
+library(dplyr)
 ```
 
 ##Get the data
@@ -44,189 +38,97 @@ Download the file usind 'download.file' and save it to the 'Data' folder
 ```{r}
 url <- "https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip"
 fileName <- "Dataset.zip"
-if(!file.exists(path)){dir.create(path)}
-download.file(url, file.path(path, fileName))
+download.file(url, fileName)
 ```
 
 Unzip the file
 
 ```{r}
-unzip(file.path(path, fileName))
+  unzip(fileName)
 ```
 
 The unzipping put all the data into a file called 'UCI HAR Dataset'. Change the input path to reflect this and list the file names.
 
 ```{r}
-pathIn <- file.path(path, "UCI HAR Dataset")
-list.files(pathIn, recursive = TRUE)
+  setwd("./UCI HAR Dataset")
 ```
+
 The files in the 'Inertial signals' will not be used for this project.
 
 ##Read the Files
 ----------------
-Read in the subject and sctivity files using fread
+Read the Features and Activity Labels file
 
 ```{r}
-dtsubtrain <- fread(file.path(pathIn, "train","subject_train.txt"))
-dtsubtest <- fread(file.path(pathIn, "test","subject_test.txt"))
-dtacttrain <- fread(file.path(pathIn, "train", "Y_train.txt"))
-dtacttest <- fread(file.path(pathIn, "test", "Y_test.txt"))
+feat <- read.table("features.txt", colClasses = "character")
+actlabels <- read.table("activity_labels.txt", colClasses = "character")
 ```
-
-Use the 'read.table' to create a data table. Helpful function for this is the 'fileToMakeTable'
+Read in all the training data
 
 ```{r}
-fileToMakeTable <- function(path){
-    df <- read.table(path)
-    dt <- data.table(df)
-  }
-dttrain <- fileToMakeTable(file.path(pathIn, "train", "X_train.txt"))
-dttest <- fileToMakeTable(file.path(pathIn, "test", "X_test.txt"))
+dttraindata <- read.table("./train/X_train.txt")
+dttrainsubject <- read.table("./train/subject_train.txt")
+dttrainactivity <- read.table("./train/y_train.txt")
 ```
+
+Combine all the Training Data together
+
+```{r}
+dttrain <- cbind(dttrainsubject, dttrainactivity, dttraindata)
+```
+
+Change the column names and create "train" variable to group by later
+
+```{r}
+colnames(dttrain) <- c("subject", "activity", feat[,2])
+dttrain$condition <- "train"
+```
+
+Repeat the same process for the test data
+
+```{r}
+dttestdata <- read.table("./test/X_test.txt")
+dttestsubject <- read.table("./test/subject_test.txt")
+dttestactivity <- read.table("./test/y_test.txt")
+dttest <- cbind(dttestsubject, dttestactivity, dttestdata)
+colnames(dttest) <- c("subject", "activity", feat[,2])
+dttest$condition <- "test"
+```
+
 
 ##Merge the training and test sets
 ----------------------------------
-Concatenate the data tables
+
+Merge the datasets together
 
 ```{r}
-dtsub <- rbind(dtsubtrain, dtsubtest)
-setnames(dtsub, "V1", "subject")
-dtact <- rbind(dtacttrain, dtacttest)
-setnames(dtact, "V1", "activityNumber")
 dt <- rbind(dttrain, dttest)
+dt <- dt[,c(ncol(dt), 2:ncol(dt)-1)]
 ```
 
-Merge the columns.
-
-```{r}
-dtsub <- cbind(dtsub, dtact)
-dt <- cbind(dtsub, dt)
-```
-Set the key
-
-```{r}
-setkey(dt, subject, activityNumber)
-```
-
-##Extract only the mean and standard deviation
+##Renmae the Activities with Descriptive Names
 ----------------------------------------------
-Read in the 'feature.txt' to tell us what variables in 'dt' are measurements for the mean and standard deviation
+Rename the Activities
 
 ```{r}
-dtfeat <- fread(file.path(pathIn, "features.txt"))
-setnames(dtfeat, names(dtfeat), c("featureNum", "featureName"))
+dt$activity <- as.factor(dt$activity)
+levels(dt$activity) <- actlabels$V2
 ```
 
-Subset only the mean and standard deviation
+##Create a Summary of the Tidy Data
+-----------------------------------
+Create a summary for the data with the mean
 
 ```{r}
-dtfeat <- dtfeat[grepl("mean\\(\\)|std\\(\\)", featureName)]
+actsummary <- group_by(dt,condition, subject, activity)
+actsummary <- summarise_each(actsummary, funs(mean))
 ```
 
-Convert the column numbers to names from the 'feature.txt'
+##Save to File with write.table()
+---------------------------------
+Save with write.table
 
 ```{r}
-dtfeat$featureCode <- dtfeat[,paste0("V", featureNum)]
-head(dtfeat)
-dtFeat$featureCode
-```
-
-Subset using the variables names
-
-```{r}
-select <- c(key(dt), dtfeat$featureCode)
-dt <- dt[,select, with=FALSE]
-```
-
-##Using descriptive activity names
-----------------------------------
-
-The 'activity_labels.txt' file will add descriptive activity names
-
-```{r}
-dtActnames <- fread(file.path(pathIn, "activity_labels.txt"))
-setnames(dtActnames, names(dtActnames), c("activityNumber", "activityName"))
-```
-
-##Label with the descriptive names
-----------------------------------
-
-Merge the activity labels with the data table
-
-```{r}
-dt <- merge(dt, dtActnames, by = "activityNumber", all.x = TRUE)
-```
-
-Add the 'activityName' as a key
-
-```{r}
-setkey(dt, subject, activityNumber, activityName)
-```
-
-We need to reshape the dataset using the melt function. This will changhe it from a short and wide dataset to a tall and skinny dataset
-
-```{r}
-dt <- data.table(melt(dt, key(dt), variable.name = "featureCode"))
-```
-
-The we can merge the activity names with the melted dataset
-
-```{r}
-dt <- merge(dt, dtfeat[,list(featureNum, featureCode, featureName)], by = "featureCode", all.x = TRUE)
-```
-
-We have to create a couple of variables for the 'activityName'  and 'featureName'
-
-```{r}
-dt$activity <- factor(dt$activityName)
-dt$feature <- factor(dt$featureName)
-```
-
-A helpful function for the next chunk of code with the grepthis function (helps save on typing)
-
-```{r}
-grepthis <- function(name){
-    grepl(name, dt$feature)
-}
-```
-
-Now we seperate the features from 'featureName'
-
-```{r}
-n <- 2
-y <- matrix(seq(1,n), nrow = n)
-x <- matrix(c(grepthis("^t"), grepthis("^f")), ncol = nrow(y))
-dt$featDomain <- factor( x %*% y, labels = c("Time", "Feq"))
-x <- matrix(c(grepthis("Acc"), grepthis("Gyro")), ncol = nrow(y))
-dt$featInstrument <- factor(x %*% y, labels = c("Accelerometer","Gyroscope"))
-x <- matrix(c(grepthis("BodyAcc"), grepthis("GravityAcc")), ncol = nrow(y))
-dt$featAcceleration <- factor(x %*% y, labels = c(NA, "Body", "Gravity"))
-x <- matrix(c(grepthis("mean()"), grepthis("std()")), ncol = nrow(y))
-dt$featVariable <- factor( x %*% y, labels = c("Mean","STDEV"))
-dt$featJerk <- factor(grepthis("Jerk"), labels = c(NA, "Jerk"))
-dt$featMagnitude <- factor(grepthis("Mag"), labels = c(NA, "Magnitude"))
-n <- 3
-y <- matrix(seq(1,n), nrow=n)
-x <- matrix(c(grepthis("-X"), grepthis("-Y"), grepthis("-Z")), ncol=nrow(y))
-dt$featAxis <- factor(x %*% y, labels = c(NA,"X","Y","Z"))
-```
-
-##Create a tidy dataset
------------------------
-
-Create a tidy dataset with the average of each variable for activity and subject
-
-```{r}
-setkey(dt, subject, activity, featDomain, featAcceleration, featInstrument, featJerk, featMagnitude, featVariable, featAxis)
-dtTidy <- dt[, list(count = .N, average = mean(value)), by = key(dt)]
-```
-
-##Write to a file
------------------
-
-Write the dataset to a file using the write.table function
-
-```{r}
-f <- file.path(path, "DatasetHumanActivityRecoginitionUsingSmartphones.txt")
-write.table(dtTidy, f, quote = FALSE, sep = "\t", row.names = FALSE)
+write.table(dt, "tidyData.txt", row.names = FALSE)
+write.table(actsummary, "tidydatasummary.txt", row.names = FALSE)
 ```
