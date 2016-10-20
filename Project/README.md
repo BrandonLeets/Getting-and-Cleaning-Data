@@ -31,3 +31,113 @@ Good luck!
 
 ##Outputs
 Tidy dataset file 'tidyData.txt' Which is saved in the UCI HAR Dataset
+
+##Library
+---------
+Load these specific Libraries
+
+```{r}
+library(dplyr)
+```
+
+##Get the data
+--------------
+Download the file usind 'download.file' and save it to the 'Data' folder
+
+```{r}
+url <- "https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip"
+fileName <- "Dataset.zip"
+download.file(url, fileName)
+```
+
+Unzip the file
+
+```{r}
+  unzip(fileName)
+```
+
+The unzipping put all the data into a file called 'UCI HAR Dataset'. Change the input path to reflect this and list the file names.
+
+```{r}
+  setwd("./UCI HAR Dataset")
+```
+
+The files in the 'Inertial signals' will not be used for this project.
+
+##Read the Files
+----------------
+Read the Features and Activity Labels file
+
+```{r}
+feat <- read.table("features.txt", colClasses = "character")
+actlabels <- read.table("activity_labels.txt", colClasses = "character")
+```
+Read in all the training data
+
+```{r}
+dttraindata <- read.table("./train/X_train.txt")
+dttrainsubject <- read.table("./train/subject_train.txt")
+dttrainactivity <- read.table("./train/y_train.txt")
+```
+
+Combine all the Training Data together
+
+```{r}
+dttrain <- cbind(dttrainsubject, dttrainactivity, dttraindata)
+```
+
+Change the column names and create "train" variable to group by later
+
+```{r}
+colnames(dttrain) <- c("subject", "activity", feat[,2])
+dttrain$condition <- "train"
+```
+
+Repeat the same process for the test data
+
+```{r}
+dttestdata <- read.table("./test/X_test.txt")
+dttestsubject <- read.table("./test/subject_test.txt")
+dttestactivity <- read.table("./test/y_test.txt")
+dttest <- cbind(dttestsubject, dttestactivity, dttestdata)
+colnames(dttest) <- c("subject", "activity", feat[,2])
+dttest$condition <- "test"
+```
+
+
+##Merge the training and test sets
+----------------------------------
+
+Merge the datasets together
+
+```{r}
+dt <- rbind(dttrain, dttest)
+dt <- dt[,c(ncol(dt), 2:ncol(dt)-1)]
+```
+
+##Renmae the Activities with Descriptive Names
+----------------------------------------------
+Rename the Activities
+
+```{r}
+dt$activity <- as.factor(dt$activity)
+levels(dt$activity) <- actlabels$V2
+```
+
+##Create a Summary of the Tidy Data
+-----------------------------------
+Create a summary for the data with the mean
+
+```{r}
+actsummary <- group_by(dt,condition, subject, activity)
+actsummary <- summarise_each(actsummary, funs(mean))
+```
+
+##Save to File with write.table()
+---------------------------------
+Save with write.table
+
+```{r}
+write.table(dt, "tidyData.txt", row.names = FALSE)
+write.table(actsummary, "tidydatasummary.txt", row.names = FALSE)
+```
